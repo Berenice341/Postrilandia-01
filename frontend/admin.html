@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - Postrilandia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h1 class="text-white fs-4 mb-0">👨‍💼 Panel Administrador</h1>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white small">Hola, <strong id="nombreAdmin"></strong></span>
+                <button class="btn btn-danger btn-sm" onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4 px-4 px-md-5">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="hero p-4 d-flex justify-content-between align-items-center shadow-sm">
+                    <div class="text-start">
+                        <h2 class="mb-1 fw-bold">Panel de Control</h2>
+                        <p class="mb-0 fs-5 opacity-75">Gestiona el inventario y categorías de Postrilandia</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje de estado -->
+        <div id="mensaje-admin" class="alert shadow-sm" style="display:none;"></div>
+
+        <div class="row">
+            <!-- Columna Izquierda: Categorías -->
+            <div class="col-lg-4 mb-4">
+                <div class="admin-box h-100">
+                    <h4 class="mb-4 text-secondary">🏷️ Categorías</h4>
+                    
+                    <label class="form-label text-muted small fw-bold">NUEVA CATEGORÍA</label>
+                    <div class="input-group mb-4 shadow-sm">
+                        <input type="text" id="nombreCategoria" class="form-control border-end-0" placeholder="Ej. Postres Veganos">
+                        <button class="btn btn-rosa" onclick="agregarCategoria()">➕ Agregar</button>
+                    </div>
+                    
+                    <h6 class="text-muted fw-bold mb-3">CATEGORÍAS ACTUALES</h6>
+                    <ul class="list-group list-group-flush" id="listaCategorias">
+                        <!-- Se llenará con JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Agregar Producto -->
+            <div class="col-lg-8 mb-4">
+                <div class="admin-box h-100">
+                    <h4 class="mb-4 text-secondary">➕ Nuevo Producto</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">NOMBRE</label>
+                                <input type="text" id="nombre" class="form-control" placeholder="Ej. Pastel de Zanahoria">
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label text-muted small fw-bold">PRECIO ($)</label>
+                                    <input type="number" id="precio" class="form-control" placeholder="0.00" min="0">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label text-muted small fw-bold">STOCK</label>
+                                    <input type="number" id="stock" class="form-control" placeholder="0" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">CATEGORÍA</label>
+                                <select id="categoriaProducto" class="form-select">
+                                    <option value="">Sin Categoría</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">DESCRIPCIÓN</label>
+                                <textarea id="descripcion" class="form-control" placeholder="Detalles del producto..." rows="4"></textarea>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold">URL DE LA IMAGEN</label>
+                                <input type="text" id="imagen" class="form-control" placeholder="https://...">
+                            </div>
+                            
+                            <button class="btn btn-rosa w-100 py-2 fw-bold shadow-sm" onclick="agregarProducto()">
+                                ➕ Guardar Producto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila Inferior: Lista de Productos -->
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-box mb-5">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 border-bottom pb-3">
+                        <h4 class="mb-0 text-secondary">📦 Inventario Disponible</h4>
+                        <div class="d-flex align-items-center mt-3 mt-md-0">
+                            <label for="filtroCategoria" class="form-label me-2 mb-0 fw-bold text-muted small">FILTRAR:</label>
+                            <select id="filtroCategoria" class="form-select w-auto shadow-sm" onchange="filtrarProductos()">
+                                <option value="todas">Todas las categorías</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="listaProductos"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL EDITAR -->
+    <div class="modal fade" id="modalEditar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#ff4fa3;">
+                    <h5 class="modal-title text-white">✏️ Editar Producto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-id">
+                    <input type="text" id="edit-nombre" class="form-control mb-3" placeholder="Nombre">
+                    <input type="number" id="edit-precio" class="form-control mb-3" placeholder="Precio" min="0">
+                    <input type="number" id="edit-stock" class="form-control mb-3" placeholder="Stock" min="0">
+                    <select id="edit-categoriaProducto" class="form-select mb-3">
+                        <option value="">Sin Categoría</option>
+                    </select>
+                    <textarea id="edit-descripcion" class="form-control mb-3" placeholder="Descripción" rows="2"></textarea>
+                    <input type="text" id="edit-imagen" class="form-control mb-3" placeholder="URL imagen">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-rosa" onclick="guardarEdicion()">💾 Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('nombreAdmin').textContent =
+            localStorage.getItem('usuario') || 'Admin';
+    </script>
+    <script src="admin.js"></script>
+</body>
+</html>
