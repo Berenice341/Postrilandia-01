@@ -27,7 +27,7 @@ app.use('/ventas', ventasRoutes);
 
 // Ruta para manejar el inicio (opcional, por si quieres ver algo al entrar a la URL raíz)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/frontend/index.html'));
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Configuración del puerto para Render
