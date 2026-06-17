@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 // Transporter reutilizable
 const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
-    port: parseInt(process.env.MAIL_PORT) || 2525,
+    port: parseInt(process.env.MAIL_PORT) || 2525, // Usa 2525 si no se define el puerto
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS
@@ -17,9 +17,12 @@ const transporter = nodemailer.createTransport({
  */
 async function enviarVerificacion(correo, token) {
     const url = `${process.env.APP_URL}/verificar.html?token=${token}`;
+    
+    // CORRECCIÓN: Si MAIL_FROM no está en Render, usa MAIL_USER automáticamente para no romper la sintaxis
+    const fromEmail = process.env.MAIL_FROM || process.env.MAIL_USER;
 
     await transporter.sendMail({
-        from: `"Postrilandia 🍰" <${process.env.MAIL_FROM}>`,
+        from: `"Postrilandia" <${fromEmail}>`,
         to: correo,
         subject: '✅ Verifica tu cuenta en Postrilandia',
         html: `
@@ -54,9 +57,12 @@ async function enviarVerificacion(correo, token) {
  */
 async function enviarRecuperacion(correo, token) {
     const url = `${process.env.APP_URL}/reset-password.html?token=${token}`;
+    
+    // CORRECCIÓN: Respaldo automático también aquí
+    const fromEmail = process.env.MAIL_FROM || process.env.MAIL_USER;
 
     await transporter.sendMail({
-        from: `"Postrilandia 🍰" <${process.env.MAIL_FROM}>`,
+        from: `"Postrilandia" <${fromEmail}>`,
         to: correo,
         subject: '🔑 Recupera tu contraseña - Postrilandia',
         html: `
