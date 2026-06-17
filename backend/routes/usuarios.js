@@ -92,7 +92,7 @@ router.post('/registro', async (req, res) => {
             [usuario, correo, hash, rol, token]
         );
 
-        //await enviarVerificacion(correo, token);
+        await enviarVerificacion(correo, token);
 
         res.status(201).json({
             mensaje: `¡Cuenta creada! Hemos enviado un enlace de verificación a ${correo}.`
